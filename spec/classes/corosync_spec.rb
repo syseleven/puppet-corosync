@@ -54,6 +54,32 @@ describe 'corosync' do
       end
     end
 
+
+    [ :package_corosync, :package_pacemaker, :version_corosync, :version_pacemaker ].each { |package_param|
+      context "new-style package parameter $#{package_param} mixed with deprecated $packages parameter" do
+        before :each do
+          params.merge!(
+            {
+              package_param => true, # value does not really matter here: these
+                                     # two params must not both be defined
+                                     # at the same time.
+              :packages => ['corosync', 'pacemaker'],
+            }
+          )
+        end
+
+        it 'raises error' do
+          should raise_error(
+              Puppet::Error,
+              /\$corosync::#{package_param} and \$corosync::packages must not be mixed!/
+          )
+        end
+      end
+    }
+
+
+
+
     context 'when set_quorum is true and quorum_members are not set' do
       before :each do
         params.merge!(
